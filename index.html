@@ -992,6 +992,93 @@
     </div>
 
     <script>
+        // Use IndexedDB for persistent storage
+        let db;
+        
+        // Initialize IndexedDB
+        function initDB() {
+            const request = indexedDB.open('PortfolioImages', 1);
+            
+            request.onerror = function(event) {
+                console.log('Database error:', event.target.error);
+            };
+            
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadSavedImages();
+            };
+            
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                const objectStore = db.createObjectStore('images', { keyPath: 'id' });
+                objectStore.createIndex('project', 'project', { unique: false });
+            };
+        }
+        
+        // Save image to IndexedDB
+        function saveImage(id, imageData, filename, project = null) {
+            const transaction = db.transaction(['images'], 'readwrite');
+            const objectStore = transaction.objectStore('images');
+            
+            const imageRecord = {
+                id: id,
+                data: imageData,
+                filename: filename,
+                project: project,
+                timestamp: new Date().getTime()
+            };
+            
+            objectStore.put(imageRecord);
+        }
+        
+        // Load saved images
+        function loadSavedImages() {
+            const transaction = db.transaction(['images'], 'readonly');
+            const objectStore = transaction.objectStore('images');
+            const request = objectStore.getAll();
+            
+            request.onsuccess = function(event) {
+                const images = event.target.result;
+                const gallery = document.getElementById('imageGallery');
+                
+                images.forEach(image => {
+                    if (!image.project) {
+                        // Add to main gallery
+                        const galleryItem = document.createElement('div');
+                        galleryItem.className = 'gallery-item';
+                        galleryItem.innerHTML = `
+                            <img src="${image.data}" alt="${image.filename}">
+                            <div class="gallery-caption">
+                                ${image.filename}
+                                <button onclick="deleteImage('${image.id}')" style="float: right; background: rgba(255,255,255,0.2); border: none; color: white; padding: 2px 8px; border-radius: 10px; cursor: pointer;">×</button>
+                            </div>
+                        `;
+                        gallery.appendChild(galleryItem);
+                    } else {
+                        // Add to project template
+                        const placeholder = document.querySelector(`[data-project="${image.project}"]`);
+                        if (placeholder) {
+                            placeholder.classList.add('has-image');
+                            placeholder.innerHTML = `
+                                <img src="${image.data}" alt="${image.filename}">
+                                <button onclick="deleteImage('${image.id}')" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 5px 10px; border-radius: 50%; cursor: pointer;">×</button>
+                            `;
+                        }
+                    }
+                });
+            };
+        }
+        
+        // Delete image
+        function deleteImage(imageId) {
+            const transaction = db.transaction(['images'], 'readwrite');
+            const objectStore = transaction.objectStore('images');
+            objectStore.delete(imageId);
+            
+            // Refresh the page to show updated content
+            location.reload();
+        }
+
         // Image upload functionality
         function handleImageUpload(event) {
             const files = event.target.files;
@@ -1000,16 +1087,22 @@
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const reader = new FileReader();
+                const imageId = 'img_' + new Date().getTime() + '_' + i;
                 
                 reader.onload = function(e) {
+                    // Save to IndexedDB
+                    saveImage(imageId, e.target.result, file.name);
+                    
+                    // Display immediately
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item';
-                    
                     galleryItem.innerHTML = `
                         <img src="${e.target.result}" alt="${file.name}">
-                        <div class="gallery-caption">${file.name}</div>
+                        <div class="gallery-caption">
+                            ${file.name}
+                            <button onclick="deleteImage('${imageId}')" style="float: right; background: rgba(255,255,255,0.2); border: none; color: white; padding: 2px 8px; border-radius: 10px; cursor: pointer;">×</button>
+                        </div>
                     `;
-                    
                     gallery.appendChild(galleryItem);
                 };
                 
@@ -1019,24 +1112,36 @@
 
         // Template placeholder click functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize database
+            initDB();
+            
             const placeholders = document.querySelectorAll('.template-placeholder');
             
             placeholders.forEach(placeholder => {
                 placeholder.addEventListener('click', function() {
+                    // Don't trigger if already has image
+                    if (placeholder.classList.contains('has-image')) return;
+                    
                     const input = document.createElement('input');
                     input.type = 'file';
                     input.accept = 'image/*';
-                    input.multiple = true;
                     
                     input.onchange = function(e) {
-                        const files = e.target.files;
-                        if (files.length > 0) {
-                            const file = files[0];
+                        const file = e.target.files[0];
+                        if (file) {
                             const reader = new FileReader();
+                            const imageId = 'project_' + placeholder.dataset.project + '_' + new Date().getTime();
                             
                             reader.onload = function(event) {
+                                // Save to IndexedDB
+                                saveImage(imageId, event.target.result, file.name, placeholder.dataset.project);
+                                
+                                // Display immediately
                                 placeholder.classList.add('has-image');
-                                placeholder.innerHTML = `<img src="${event.target.result}" alt="${file.name}">`;
+                                placeholder.innerHTML = `
+                                    <img src="${event.target.result}" alt="${file.name}">
+                                    <button onclick="deleteImage('${imageId}')" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); border: none; color: white; padding: 5px 10px; border-radius: 50%; cursor: pointer;">×</button>
+                                `;
                             };
                             
                             reader.readAsDataURL(file);
@@ -1046,6 +1151,30 @@
                     input.click();
                 });
             });
+
+            // Add export functionality
+            const exportButton = document.createElement('button');
+            exportButton.innerHTML = '📤 Export Portfolio Data';
+            exportButton.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+                z-index: 1000;
+            `;
+            
+            exportButton.onclick = function() {
+                exportPortfolioData();
+            };
+            
+            document.body.appendChild(exportButton);
 
             // Add smooth scrolling animation
             const sections = document.querySelectorAll('.section');
@@ -1081,6 +1210,51 @@
                 hero.style.transform = 'translateY(0)';
             }, 200);
         });
+        
+        // Export portfolio data
+        function exportPortfolioData() {
+            const transaction = db.transaction(['images'], 'readonly');
+            const objectStore = transaction.objectStore('images');
+            const request = objectStore.getAll();
+            
+            request.onsuccess = function(event) {
+                const images = event.target.result;
+                const exportData = {
+                    portfolio: 'Vivien Xu Marketing Portfolio',
+                    exportDate: new Date().toISOString(),
+                    images: images
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = 'vivien-portfolio-data.json';
+                link.click();
+                
+                alert('Portfolio data exported! You can import this file on any device to restore your images.');
+            };
+        }
+        
+        // Import functionality (you can add a button for this)
+        function importPortfolioData(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.images) {
+                        data.images.forEach(image => {
+                            saveImage(image.id, image.data, image.filename, image.project);
+                        });
+                        location.reload();
+                    }
+                } catch (error) {
+                    alert('Invalid portfolio data file');
+                }
+            };
+            reader.readAsText(file);
+        }
     </script>
 </body>
 </html>
