@@ -1288,27 +1288,70 @@
 
             // Add export functionality
             const exportButton = document.createElement('button');
-            exportButton.innerHTML = '📤 Export Portfolio Data';
+            exportButton.innerHTML = '📤 Export Data';
             exportButton.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+                z-index: 1000;
+                font-size: 14px;
+            `;
+            
+            exportButton.onclick = function() {
+                exportPortfolioData();
+            };
+
+            // Add PDF export button
+            const pdfButton = document.createElement('button');
+            pdfButton.innerHTML = '📄 Save as PDF';
+            pdfButton.style.cssText = `
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
+                background: linear-gradient(135deg, #28a745, #20c997);
                 color: white;
                 border: none;
                 padding: 15px 25px;
                 border-radius: 25px;
                 font-weight: 600;
                 cursor: pointer;
-                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+                box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
                 z-index: 1000;
+                font-size: 16px;
             `;
             
-            exportButton.onclick = function() {
-                exportPortfolioData();
+            pdfButton.onclick = function() {
+                // Scroll to top first
+                window.scrollTo(0, 0);
+                
+                // Add print-specific class to body
+                document.body.classList.add('print-mode');
+                
+                // Wait for layout to adjust
+                setTimeout(() => {
+                    // Show instructions
+                    alert(`准备导出PDF！\n\n重要设置：\n1. 目标：选择"另存为PDF"\n2. 页面：选择"全部"\n3. 更多设置：\n   ✅ 背景图形\n   ✅ 边距：最小\n   ✅ 比例：100%\n\n点击"确定"后将打开打印对话框...`);
+                    
+                    // Trigger print dialog
+                    window.print();
+                    
+                    // Remove print class after printing
+                    setTimeout(() => {
+                        document.body.classList.remove('print-mode');
+                    }, 1000);
+                }, 500);
             };
             
             document.body.appendChild(exportButton);
+            document.body.appendChild(pdfButton);
 
             // Add smooth scrolling animation
             const sections = document.querySelectorAll('.section');
