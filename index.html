@@ -83,6 +83,48 @@
             margin-top: 10px;
         }
 
+        .portfolio-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .portfolio-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            border: 2px solid transparent;
+        }
+
+        .portfolio-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+
+        .portfolio-link.primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .portfolio-link.primary:hover {
+            background: linear-gradient(135deg, #0d9488, #047857);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .link-note {
+            margin-top: 15px;
+            color: #5a6c7d;
+            font-size: 0.95em;
+            font-style: italic;
+        }
+
         .section {
             background: rgba(255, 255, 255, 0.95);
             margin: 40px 20px;
@@ -643,11 +685,55 @@
             font-weight: 600;
             transition: all 0.3s ease;
             border: 2px solid rgba(255, 255, 255, 0.3);
+            margin: 10px;
         }
 
         .cta-button:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+        }
+
+        .cta-button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .contact-links {
+            margin-bottom: 30px;
+        }
+
+        .website-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .website-link {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .website-link a {
+            color: #a8f0ff;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(168, 240, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .website-link a:hover {
+            border-bottom-color: #a8f0ff;
+            color: white;
+        }
+
+        .pdf-note {
+            font-size: 0.95em;
+            opacity: 0.9;
+            margin: 0;
+            font-style: italic;
         }
 
         @media print {
@@ -766,6 +852,14 @@
             <h1>Vivien Xu</h1>
             <p class="subtitle">Data-Driven Marketing Specialist | MSc Marketing Student | Digital Strategy Expert</p>
             <div class="location">📍 Edinburgh, United Kingdom</div>
+            
+            <!-- Interactive Portfolio Link -->
+            <div class="portfolio-links">
+                <a href="https://vivienxuuuu.github.io/" target="_blank" class="portfolio-link primary">
+                    🌐 View Interactive Portfolio
+                </a>
+                <div class="link-note">Click above for the full interactive experience</div>
+            </div>
         </section>
 
         <!-- About Section -->
@@ -1120,7 +1214,25 @@
             <div class="cta-section">
                 <h2 class="cta-title">Let's Create Something Amazing Together</h2>
                 <p style="margin-bottom: 30px; font-size: 1.1em;">Ready to leverage data-driven marketing strategies for your next project?</p>
-                <a href="https://vivienxuuuu.github.io/" class="cta-button">Visit My Website</a>
+                
+                <div class="contact-links">
+                    <a href="https://vivienxuuuu.github.io/" target="_blank" class="cta-button">
+                        🌐 Interactive Portfolio
+                    </a>
+                    <a href="mailto:vivien.xu@example.com" class="cta-button secondary">
+                        📧 Get In Touch
+                    </a>
+                </div>
+                
+                <div class="website-info">
+                    <div class="website-link">
+                        <strong>Full Portfolio:</strong> 
+                        <a href="https://vivienxuuuu.github.io/" target="_blank">
+                            https://vivienxuuuu.github.io/
+                        </a>
+                    </div>
+                    <p class="pdf-note">📄 PDF Version: Click the link above for interactive features, animations, and latest updates</p>
+                </div>
             </div>
         </section>
     </div>
