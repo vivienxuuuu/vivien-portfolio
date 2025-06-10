@@ -1455,8 +1455,8 @@
                 
                 // Wait for layout to adjust
                 setTimeout(() => {
-                    // Show instructions
-                    alert(`准备导出PDF！\n\n重要设置：\n1. 目标：选择"另存为PDF"\n2. 页面：选择"全部"\n3. 更多设置：\n   ✅ 背景图形\n   ✅ 边距：最小\n   ✅ 比例：100%\n\n点击"确定"后将打开打印对话框...`);
+                    // Show instructions with updated settings
+                    alert(`准备导出PDF！\n\n关键设置：\n1. 目标：选择"另存为PDF"\n2. 页面：选择"全部"\n3. 更多设置：\n   ✅ 背景图形\n   📏 边距：无\n   📐 比例：100%\n   📄 纸张大小：A4\n\n这样可以避免空白页面！\n\n点击"确定"后将打开打印对话框...`);
                     
                     // Trigger print dialog
                     window.print();
