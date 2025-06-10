@@ -421,7 +421,7 @@
         .template-item {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
         }
@@ -1305,8 +1305,11 @@
                         const placeholder = document.querySelector(`[data-project="${image.project}"]`);
                         if (placeholder) {
                             placeholder.classList.add('has-image');
+                            placeholder.style.height = 'auto';
+                            placeholder.style.minHeight = 'auto';
+                            placeholder.style.alignItems = 'flex-start';
                             placeholder.innerHTML = `
-                                <img src="${image.data}" alt="${image.filename}">
+                                <img src="${image.data}" alt="${image.filename}" style="width: 100%; height: auto; object-fit: contain; display: block;">
                                 <button class="project-delete-button" onclick="deleteImage('${image.id}')">×</button>
                             `;
                         }
@@ -1382,10 +1385,13 @@
                                 // Save to IndexedDB
                                 saveImage(imageId, event.target.result, file.name, placeholder.dataset.project);
                                 
-                                // Display immediately
+                                // Display immediately with proper styling
                                 placeholder.classList.add('has-image');
+                                placeholder.style.height = 'auto';
+                                placeholder.style.minHeight = 'auto';
+                                placeholder.style.alignItems = 'flex-start';
                                 placeholder.innerHTML = `
-                                    <img src="${event.target.result}" alt="${file.name}">
+                                    <img src="${event.target.result}" alt="${file.name}" style="width: 100%; height: auto; object-fit: contain; display: block;">
                                     <button class="project-delete-button" onclick="deleteImage('${imageId}')">×</button>
                                 `;
                             };
